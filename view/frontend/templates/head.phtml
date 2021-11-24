@@ -1,0 +1,13 @@
+{{google_site_verification_tag}}
+<script>
+(function(a,b,c,d,e,f,g){
+a['EshopsWithIQObject']=e;a[e]= a[e] || function(){
+(a[e].q = a[e].q || []).push(arguments);};f=b.createElement(c);
+f.src=d;f.crossOrigin='anonymous';g=b.getElementsByTagName(c)[0];g.parentNode.insertBefore(f,g);
+})(window,document,'script','//cts.eshopswithiq.com/analytics.js','eshopswithiq_analytics');
+<?php if (isset($this->product_id)) { ?>
+eshopswithiq_analytics('connect', {'product_id': '<?php echo $this->product_id; ?>'});
+<?php } else { ?>
+eshopswithiq_analytics('connect');
+<?php } ?>
+</script>

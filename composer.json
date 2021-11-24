@@ -1,0 +1,23 @@
+{
+    "name": "innovateone/eshopswithiq",
+    "description": "This extension will integrate your eshop with EshopsWithIQ (https://eshopswithiq.com)",
+    "type": "magento2-module",
+	"version": "2.0.2",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "EshopsWithIQ",
+            "email": "info@eshopswithiq.com"
+        }
+    ],
+    "require": {
+		"php": "~7.2.0||~7.3.0",
+		"magento/framework": "~100.0.4"
+	},
+    "autoload": {
+        "psr-4": {
+            "InnovateOne\\EshopsWithIQ\\": "."
+        },
+        "files": [ "registration.php" ]
+    }
+}

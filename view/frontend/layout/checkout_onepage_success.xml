@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<body>
+<referenceContainer name="order.success.additional.info">
+    <block class="InnovateOne\EshopsWithIQ\Block\Order" name="eshopswithiq.order" template="InnovateOne_EshopsWithIQ::order.phtml" after="-" cacheable="false"></block>
+</referenceContainer>
+</body>
