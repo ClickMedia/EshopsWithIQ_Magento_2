@@ -10,6 +10,12 @@
             "email": "info@eshopswithiq.com"
         }
     ],
+	"repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ClickMedia/EshopsWithIQ_Magento_2"
+        }
+    ],
     "require": {
 		"php": "~7.2.0||~7.3.0",
 		"magento/framework": "~100.0.4"
