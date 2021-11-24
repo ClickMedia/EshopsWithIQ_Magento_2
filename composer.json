@@ -16,6 +16,7 @@
             "url": "https://github.com/ClickMedia/EshopsWithIQ_Magento_2"
         }
     ],
+	"minimum-stability": "dev",
     "require": {
 		"php": "7.*"
 	},
