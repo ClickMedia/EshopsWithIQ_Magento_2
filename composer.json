@@ -1,5 +1,5 @@
 {
-    "name": "innovateone/eshopswithiq",
+    "name": "eshopswithiq/eshopswithiq",
     "description": "This extension will integrate your eshop with EshopsWithIQ (https://eshopswithiq.com)",
     "type": "magento2-module",
 	"version": "2.0.2",
@@ -16,7 +16,7 @@
             "url": "https://github.com/ClickMedia/EshopsWithIQ_Magento_2"
         }
     ],
-	"minimum-stability": "dev",
+	"minimum-stability": "stable",
     "require": {
 		"php": "7.*"
 	},
