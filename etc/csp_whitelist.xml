@@ -13,7 +13,7 @@
         </policy>
 		<policy id="frame-src">
             <values>
-                <value id="eshopswithiq" type="host">*.eshopswithiq.com</value>
+					<value id="eshopswithiq" type="host">*.eshopswithiq.com</value>
             </values>
         </policy>
 	</policies>
