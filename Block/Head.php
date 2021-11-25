@@ -7,12 +7,29 @@ use InnovateOne\EshopsWithIQ\Model\Helper;
 class Head extends \Magento\Framework\View\Element\Template
 {
 	public $product_id;
+	public $curl;
+	public $configWriter;
 	
     public function __construct(
 		\Magento\Framework\View\Element\Template\Context $context,
 		array $data = [],
-		Helper $helper
+		Helper $helper,
+		string $eswiq_go_site_verification = '',
+		\Magento\Framework\HTTP\Client\Curl $curl,
+		\Magento\Framework\App\Config\Storage\WriterInterface $configWriter,
+		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
 	) {
+		$this->curl = $curl;
+		$this->configWriter = $configWriter;
+		$this->scopeConfig = $scopeConfig;
+		
+		$code = $this->scopeConfig->getValue('eshopswithiq/eswiq_go_site_verification');
+		if (empty($code) || isset($_GET['eswiq_debug'])) {
+			$code = $this->getSiteVerificationCode();
+			if ($code) $this->configWriter->save('eshopswithiq/eswiq_go_site_verification', $code);
+		}
+		if ($code) $this->eswiq_go_site_verification = '<meta name="google-site-verification" content="'.$code.'" />';
+		
 		
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 		$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
@@ -50,4 +67,19 @@ class Head extends \Magento\Framework\View\Element\Template
 		
 		parent::__construct($context, $data);
     }
+	
+	public function getSiteVerificationCode()
+	{
+		$endpoint = 'https://app.eshopswithiq.com/app-installations/get-google-verification-tag?website='.$_SERVER['HTTP_HOST'];
+		$this->curl->get($endpoint);
+		$body = $this->curl->getBody();
+		
+		$code = '';
+		preg_match('<meta name="(?:[^"]+)" content="([^"]+)" />', $body, $matches);
+		if (count($matches)) {
+			$code = $matches[1];
+		}  
+		
+		return $code;
+	}
 }
