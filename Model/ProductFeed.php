@@ -59,10 +59,11 @@ class ProductFeed
         $this->stockState = $stockState;
     }
 
-    public function getContent() {
+    public function getContent(\Magento\Framework\App\Request\Http $request) {
         $store = $this->store;
         $storeId = $store->getStore()->getStoreId();
-        $websiteId =  $store->getStore()->getWebsiteId();
+        $websiteId = $store->getStore()->getWebsiteId();
+		$this->request = $request;
         return $this->getData();
     }
 
@@ -145,7 +146,7 @@ class ProductFeed
 			$categories[] = $category;
 		}
 		
-		if (!isset($_GET['raw'])) {
+		if (!$this->request->getParam('raw')) {
 			return $this->formatProductsXml($products);
 		} else {
 			$data = compact('products', 'categories');
@@ -180,8 +181,6 @@ class ProductFeed
 				['name' => 'description', 'type' => 'textarea', 'label' => 'Description'],
 				['name' => 'link', 'type' => 'link', 'label' => 'Url'],
 			];
-
-			if (isset($_GET['eswiq_debug'])) die('<pre>'.print_r($data, true).'</pre>');
 			return json_encode($data, JSON_UNESCAPED_UNICODE|JSON_HEX_QUOT);
 		}
     }
@@ -199,7 +198,6 @@ class ProductFeed
         /* if($stock < 1) {
             return $tmpArr;
         } */
-		//die('<pre>'.print_r(get_class_methods(get_class($product)), true));
         $tmpArr['id'] = $product->getId();
         $tmpArr['sku'] = $product->getSku();
         $tmpArr['type'] = $product->getTypeId();
@@ -292,7 +290,7 @@ class ProductFeed
                 }
 				if ($val) $tmpArr[$att] = $val;
             } catch(\Exception $ex) {
-                echo $ex->getMessage();
+				//
             }
         }
 
@@ -355,7 +353,7 @@ class ProductFeed
         $collection = $this->productCollection->create()
             ->addAttributeToSelect('*');
 
-        if (!empty($_GET['limit'])) $collection->setPageSize($_GET['limit']);
+        if (!empty($this->request->getParam('limit'))) $collection->setPageSize($this->request->getParam('limit'));
         $collection->addAttributeToFilter('status', \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
         $collection->addUrlRewrite();
         $collection->load();

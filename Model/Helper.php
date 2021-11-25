@@ -20,14 +20,6 @@ class Helper
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 2);
 		$response = curl_exec($ch);
-		if (isset($_GET['eswiq_debug'])) {
-			if(curl_error($ch)){
-				$errors[] = 'Error: "' . curl_error($ch) . '" - Code: ' . curl_errno($ch);
-				print('ERRORS: '.print_r($errors, true));
-			} else {
-				print('REQUEST: '.print_r($post_data, true).', <br>RESPONSE: '.$response);
-			}
-		}
 		
 		curl_close($ch);
 		

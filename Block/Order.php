@@ -13,9 +13,13 @@ class Order extends \Magento\Framework\View\Element\Template
         \Magento\Framework\View\Element\Template\Context $context,
 		array $data = [],
         \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $salesOrderCollection,
-		Helper $helper
+		Helper $helper,
+		\Magento\Customer\Model\Session $customerSession,
+		\Magento\Framework\App\Request\Http $request
     ) {
         $this->_salesOrderCollection = $salesOrderCollection;
+		$this->customerSession = $customerSession;
+		$this->request = $request;
 		
 		$collection = $this->_salesOrderCollection->create();
         $order = $collection->getLastItem();
@@ -42,17 +46,17 @@ class Order extends \Magento\Framework\View\Element\Template
 		];
 		
 		//session
-		$session_id = isset($_SESSION['eshopswithiq']) ? $_SESSION['eshopswithiq'] : null;
+		$session_id = $this->customerSession->getData('eshopswithiq');
 		if (empty($session_id)) $session_id = isset($_COOKIE['eshopswithiq']) ? $_COOKIE['eshopswithiq'] : null;
 		
 		//server side fallback
 		$post_data = [];
-		if (!empty($_GET['eclid'])) {
-			$post_data['lead'] = $_GET['eclid'];
-		} else if (!empty($_GET['ea_client']) && !empty($_GET['ea_channel'])) {
-			$lead_data = ['client' => $_GET['ea_client'], 'channel' => $_GET['ea_channel']];
-			if (!empty($_GET['ea_group'])) $lead_data['group'] = $_GET['ea_group'];
-			if (!empty($_GET['ea_product'])) $lead_data['product'] = $_GET['ea_product'];
+		if (!empty($this->request->getParam('eclid'))) {
+			$post_data['lead'] = $this->request->getParam('eclid');
+		} else if (!empty($this->request->getParam('ea_client')) && !empty($this->request->getParam('ea_channel'))) {
+			$lead_data = ['client' => $this->request->getParam('ea_client'), 'channel' => $this->request->getParam('ea_channel')];
+			if (!empty($this->request->getParam('ea_group'))) $lead_data['group'] = $this->request->getParam('ea_group');
+			if (!empty($this->request->getParam('ea_product'))) $lead_data['product'] = $this->request->getParam('ea_product');
 			$post_data['lead'] = base64_encode(json_encode($lead_data));
 		}
 		if (wc_get_product()) {
@@ -64,7 +68,7 @@ class Order extends \Magento\Framework\View\Element\Template
 			$response = $helper->call('http://cts.eshopswithiq.com/p', $post_data);
 			if ($response) {
 				$session_id = $response;
-				$_SESSION['eshopswithiq'] = $session_id;
+				$this->customerSession->setData('eshopswithiq', $session_id);
 			}
 		}
 		if (empty($_COOKIE['eshopswithiq']) && !empty($session_id)) {

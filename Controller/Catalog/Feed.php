@@ -22,13 +22,16 @@ class Feed extends Action
 	public function __construct(
 	Context $context,
 	ProductFeed $productFeed,
-	RawFactory $rawResultFactory
+	RawFactory $rawResultFactory,
+	\Magento\Framework\App\Request\Http $request
 	) {
-		if (isset($_GET['eswiq_debug'])) {
+		$this->request = $request;
+		
+		if ($this->request->getParam('eswiq_debug')) {
 			ini_set('display_errors', 1);
 			ini_set('display_startup_errors', 1);
 			error_reporting(E_ALL);
-		}  
+		}
 		
 		$this->rawResultFactory = $rawResultFactory;
 		$this->productFeed = $productFeed;
@@ -38,22 +41,17 @@ class Feed extends Action
 	public function execute() {
 		$result = $this->rawResultFactory->create();
 		try {
-			if (!isset($_GET['raw'])) {
+			if (!$this->request->getParam('raw')) {
 				$result->setHeader('Content-Type', 'application/xml; charset=utf-8');
 				} else {
 				$result->setHeader('Content-Type', 'application/json; charset=utf-8');
 			}
 			
-			$contents =  $this->productFeed->getContent();
+			$contents =  $this->productFeed->getContent($this->request);
 			$result->setContents($contents);
 			} catch(\Exception $ex) {
 			$result->setContents($ex->getMessage());
 		}
 		return $result;
 	}
-}
-
-class Update extends Action
-{
-	require_once __DIR__ . '/eshopswithiq_updater.php';
 }

@@ -7,8 +7,6 @@ use InnovateOne\EshopsWithIQ\Model\Helper;
 class Head extends \Magento\Framework\View\Element\Template
 {
 	public $product_id;
-	public $curl;
-	public $configWriter;
 	
     public function __construct(
 		\Magento\Framework\View\Element\Template\Context $context,
@@ -17,14 +15,18 @@ class Head extends \Magento\Framework\View\Element\Template
 		string $eswiq_go_site_verification = '',
 		\Magento\Framework\HTTP\Client\Curl $curl,
 		\Magento\Framework\App\Config\Storage\WriterInterface $configWriter,
-		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+		\Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+		\Magento\Customer\Model\Session $customerSession,
+		\Magento\Framework\App\Request\Http $request
 	) {
 		$this->curl = $curl;
 		$this->configWriter = $configWriter;
 		$this->scopeConfig = $scopeConfig;
+		$this->customerSession = $customerSession;
+		$this->request = $request;
 		
 		$code = $this->scopeConfig->getValue('eshopswithiq/eswiq_go_site_verification');
-		if (empty($code) || isset($_GET['eswiq_debug'])) {
+		if (empty($code) || $this->request->getParam('eswiq_debug')) {
 			$code = $this->getSiteVerificationCode();
 			if ($code) $this->configWriter->save('eshopswithiq/eswiq_go_site_verification', $code);
 		}
@@ -36,17 +38,17 @@ class Head extends \Magento\Framework\View\Element\Template
 		if ($product) $this->product_id = $product->getId();
 		
 		//session
-		$session_id = isset($_SESSION['eshopswithiq']) ? $_SESSION['eshopswithiq'] : null;
+		$session_id = $this->customerSession->getData('eshopswithiq');
 		if (empty($session_id)) $session_id = isset($_COOKIE['eshopswithiq']) ? $_COOKIE['eshopswithiq'] : null;
 		
 		//server side fallback
 		$post_data = [];
-		if (!empty($_GET['eclid'])) {
-			$post_data['lead'] = $_GET['eclid'];
-		} else if (!empty($_GET['ea_client']) && !empty($_GET['ea_channel'])) {
-			$lead_data = ['client' => $_GET['ea_client'], 'channel' => $_GET['ea_channel']];
-			if (!empty($_GET['ea_group'])) $lead_data['group'] = $_GET['ea_group'];
-			if (!empty($_GET['ea_product'])) $lead_data['product'] = $_GET['ea_product'];
+		if (!empty($this->request->getParam('eclid'))) {
+			$post_data['lead'] = $this->request->getParam('eclid');
+		} else if (!empty($this->request->getParam('ea_client')) && !empty($this->request->getParam('ea_channel'))) {
+			$lead_data = ['client' => $this->request->getParam('ea_client'), 'channel' => $this->request->getParam('ea_channel')];
+			if (!empty($this->request->getParam('ea_group'))) $lead_data['group'] = $this->request->getParam('ea_group');
+			if (!empty($this->request->getParam('ea_product'))) $lead_data['product'] = $this->request->getParam('ea_product');
 			$post_data['lead'] = base64_encode(json_encode($lead_data));
 		}
 		if ($this->product_id) {
@@ -57,7 +59,7 @@ class Head extends \Magento\Framework\View\Element\Template
 			$response = $helper->call('http://cts.eshopswithiq.com/v', $post_data);
 			if ($response) {
 				$session_id = $response;
-				$_SESSION['eshopswithiq'] = $session_id;
+				$this->customerSession->setData('eshopswithiq', $session_id);
 			}
 		}
 		if (empty($_COOKIE['eshopswithiq']) && !empty($session_id)) {
