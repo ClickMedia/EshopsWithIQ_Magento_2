@@ -30,8 +30,8 @@ class Order extends \Magento\Framework\View\Element\Template
 		foreach ($order->getAllVisibleItems() as $item) {
 			$products[] = [
 				'id' => $item->getId(),
-				'sku' => $this->escapeJsQuote($item->getSku()),
-				'name' => $this->escapeJsQuote($item->getName()),
+				'sku' => $item->getSku(),
+				'name' => $item->getName(),
 				'price' => $item->getPrice(),
 				'quantity' => $item->getQtyOrdered(),
 			];
@@ -58,9 +58,6 @@ class Order extends \Magento\Framework\View\Element\Template
 			if (!empty($this->request->getParam('ea_group'))) $lead_data['group'] = $this->request->getParam('ea_group');
 			if (!empty($this->request->getParam('ea_product'))) $lead_data['product'] = $this->request->getParam('ea_product');
 			$post_data['lead'] = base64_encode(json_encode($lead_data));
-		}
-		if (wc_get_product()) {
-			$post_data['page_data']['product_id'] = wc_get_product()->get_id();
 		}
 		$post_data['order'] = $this->order_data;
 		if (count($post_data)) {
